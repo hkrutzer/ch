@@ -197,8 +197,8 @@ defmodule Bench do
   def run do
     Benchee.run(
       %{
-        "now" => &Bench.current_encoder/1,
-        "next" => &Bench.next_encoder/1
+        "current encoder" => &Bench.current_encoder/1,
+        "next encoder" => &Bench.next_encoder/1
       },
       inputs: %{
         # "empty" => %ClickhouseEventV2{},
