@@ -14,6 +14,7 @@ jobs:
         image: clickhouse/clickhouse-server:latest
         ports:
           - 8123:8123
+          - 9000:9000
         env:
           options: >-
             --health-cmd nc -zw3 localhost 8124
@@ -44,6 +45,7 @@ jobs:
       - run: mkdir results
       - run: mix run bench/insert.exs | tee results/insert.txt
       - run: mix run bench/stream.exs | tee results/stream.txt
+      # TODO post somehwere to visualize
       - uses: actions/upload-artifact@v4
         with:
           name: results

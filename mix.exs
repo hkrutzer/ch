@@ -8,13 +8,22 @@ defmodule Ch.MixProject do
     [
       app: :ch,
       version: @version,
-      elixir: "~> 1.14",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       name: "Ch",
-      description: "ClickHouse driver for Elixir",
-      docs: docs(),
-      package: package(),
+      description: "HTTP ClickHouse driver for Elixir",
+      docs: [
+        source_url: @source_url,
+        source_ref: "v#{@version}",
+        main: "readme",
+        extras: ["README.md", "CHANGELOG.md"],
+        skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
+      ],
+      package: [
+        licenses: ["MIT"],
+        links: %{"GitHub" => @source_url}
+      ],
       source_url: @source_url
     ]
   end
@@ -22,7 +31,7 @@ defmodule Ch.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :ssl]
     ]
   end
 
@@ -33,32 +42,13 @@ defmodule Ch.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:mint, "~> 1.0", optional: true},
       {:db_connection, "~> 2.0"},
-      {:jason, "~> 1.0", optional: true},
       {:decimal, "~> 2.0"},
       {:ecto, "~> 3.5", optional: true},
-      {:benchee, "~> 1.0", only: [:bench]},
-      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
+      {:benchee, "~> 1.0", only: :bench},
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:ex_doc, ">= 0.0.0", only: :docs},
-      {:tz, "~> 0.26.0", only: [:test]}
-    ]
-  end
-
-  defp docs do
-    [
-      source_url: @source_url,
-      source_ref: "v#{@version}",
-      main: "readme",
-      extras: ["README.md", "CHANGELOG.md"],
-      skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
-    ]
-  end
-
-  defp package do
-    [
-      licenses: ["MIT"],
-      links: %{"GitHub" => @source_url}
+      {:tz, "~> 0.26.0", only: :test}
     ]
   end
 end

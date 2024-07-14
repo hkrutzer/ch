@@ -5,15 +5,17 @@ defmodule Ch.Result do
     * `command` - An atom of the query command, for example: `:select`, `:insert`
     * `rows` - A list of lists, each inner list corresponding to a row, each element in the inner list corresponds to a column
     * `num_rows` - The number of fetched or affected rows
-    * `data` - The raw iodata from the response
+    * `meta` - The raw metadata from `x-clickhouse-*` response headers
+    * `data` - The raw iodata from the response body
   """
 
-  defstruct [:command, :num_rows, :rows, :headers, :data]
+  defstruct [:command, :num_rows, :rows, :meta, :data]
 
   @type t :: %__MODULE__{
           command: Ch.Query.command(),
           num_rows: non_neg_integer | nil,
           rows: [[term]] | nil,
+          meta: [{String.t(), term}],
           data: iodata
         }
 end

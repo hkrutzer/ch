@@ -35,3 +35,7 @@ end
 See [tests](../test/ch/on_disk_buffer_test.exs) for more.
 
 TODO: notes on using it in docker and "surviving" restarts
+
+# In-memory INSERT buffer
+
+See tests for more.

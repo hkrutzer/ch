@@ -1,9 +1,18 @@
 # Changelog
 
+## Next
+
+- move insert data (e.g. row binary) from `params` to `statement`
+- support non-UTC `DateTime` in params
+- replace Mint with custom HTTP/1.1 client inspired by [lpgauth/buoy](https://github.com/lpgauth/buoy)
+- add native protocol and format
+- add batched insert helpers
+- add multinode pools with re-balancing
+- add compression
+
 ## Unreleased
 
 - raise on invalid UInt8 and Int8 when encoding RowBinary https://github.com/plausible/ch/pull/180
-- move rowbinary from `params` to `statement`
 
 ## 0.2.6 (2024-05-30)
 
