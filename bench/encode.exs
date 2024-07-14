@@ -194,18 +194,18 @@ defmodule Bench do
   @compile inline: [encode_nullable: 1]
   defp encode_nullable(nil), do: 1
 
-  %Date{year: year, month: month} = Date.utc_today()
-  new_epoch = DateTime.to_unix(DateTime.new!(Date.new!(year, month, 1), Time.new!(0, 0, 0)))
+  defp to_unix(%{year: year, month: month, day: day, hour: hour, minute: minute, second: second}) do
+    to_unix(year, month, day, hour, minute, second)
+  end
 
-  defp to_unix(%{
-         year: unquote(year),
-         month: unquote(month),
-         day: day,
-         hour: hour,
-         minute: minute,
-         second: second
-       }) do
-    unquote(new_epoch) + (day - 1) * 86400 + hour * 3600 + minute * 60 + second
+  @compile inline: [to_unix: 6]
+
+  for year <- 2024..2025, month <- 1..12 do
+    epoch = DateTime.to_unix(DateTime.new!(Date.new!(year, month, 1), Time.new!(0, 0, 0)))
+
+    defp to_unix(unquote(year), unquote(month), day, hour, minute, second) do
+      unquote(epoch) + (day - 1) * 86400 + hour * 3600 + minute * 60 + second
+    end
   end
 
   def run do
