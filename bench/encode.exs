@@ -138,9 +138,8 @@ defmodule Bench do
       encode_string(hostname),
       encode_string(pathname),
       <<user_id::64-unsigned, session_id::64-unsigned, timestamp::16-unsigned>>,
-      # TODO
-      meta_keys,
-      meta_values,
+      encode_string_array(meta_keys),
+      encode_string_array(meta_values),
       encode_nullable(revenue_source_amount),
       encode_fixed_string_3(revenue_source_currency),
       encode_nullable(revenue_reporting_amount),
@@ -183,6 +182,35 @@ defmodule Bench do
 
   defp encode_string(nil), do: 0
 
+  @compile inline: [encode_string_array: 1]
+  def encode_string_array([]), do: 0
+  # def encode_string_array([e1]), do: [1, encode_varint(byte_size(e1)) | e1]
+
+  # def encode_string_array([e1, e2]) do
+  #   [2, encode_varint(byte_size(e1)), e1, encode_varint(byte_size(e2)), e2]
+  # end
+
+  # def encode_string_array([e1, e2, e3]) do
+  #   [
+  #     2,
+  #     encode_varint(byte_size(e1)),
+  #     e1,
+  #     encode_varint(byte_size(e2)),
+  #     e2,
+  #     encode_varint(byte_size(e3)),
+  #     e3
+  #   ]
+  # end
+
+  def encode_string_array([_ | _] = arr) do
+    [encode_varint(length(arr)) | encode_strings(arr)]
+  end
+
+  def encode_string_array(nil), do: 0
+
+  defp encode_strings([s | rest]), do: [encode_string(s) | encode_strings(rest)]
+  defp encode_strings([]), do: []
+
   @compile inline: [encode_fixed_string_2: 1]
   defp encode_fixed_string_2(str) when byte_size(str) == 2, do: str
   defp encode_fixed_string_2(nil), do: <<0, 0>>
@@ -214,6 +242,7 @@ defmodule Bench do
         "current encoder" => &Bench.current_encoder/1,
         "next encoder" => &Bench.next_encoder/1
       },
+      # profile_after: true,
       inputs: %{
         # "empty" => %ClickhouseEventV2{},
         "pageview" => %ClickhouseEventV2{
