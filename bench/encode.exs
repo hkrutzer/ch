@@ -129,6 +129,7 @@ defmodule Bench do
     site_id = site_id || 0
     user_id = user_id || 0
     session_id = session_id || 0
+    city_geoname_id = city_geoname_id || 0
     timestamp = if timestamp, do: to_unix(timestamp), else: 0
 
     [
@@ -140,29 +141,30 @@ defmodule Bench do
       # TODO
       meta_keys,
       meta_values,
-      revenue_source_amount,
-      revenue_source_currency,
-      revenue_reporting_amount,
-      revenue_reporting_currency,
-      referrer,
-      referrer_source,
-      utm_medium,
-      utm_source,
-      utm_campaign,
-      utm_content,
-      utm_term,
-      country_code,
-      subdivision1_code,
-      subdivision2_code,
-      city_geoname_id,
-      screen_size,
-      operating_system,
-      operating_system_version,
-      browser,
-      browser_version
+      encode_nullable(revenue_source_amount),
+      encode_fixed_string_3(revenue_source_currency),
+      encode_nullable(revenue_reporting_amount),
+      encode_fixed_string_3(revenue_reporting_currency),
+      encode_string(referrer),
+      encode_string(referrer_source),
+      encode_string(utm_medium),
+      encode_string(utm_source),
+      encode_string(utm_campaign),
+      encode_string(utm_content),
+      encode_string(utm_term),
+      encode_fixed_string_2(country_code),
+      encode_string(subdivision1_code),
+      encode_string(subdivision2_code),
+      <<city_geoname_id::32-unsigned>>,
+      encode_string(screen_size),
+      encode_string(operating_system),
+      encode_string(operating_system_version),
+      encode_string(browser),
+      encode_string(browser_version)
     ]
   end
 
+  # @compile inline: [encode_varint: 1]
   defp encode_varint(i) when i < 128, do: i
   defp encode_varint(i), do: encode_varint_cont(i)
 
@@ -174,11 +176,23 @@ defmodule Bench do
     [(i &&& 0b0111_1111) ||| 0b1000_0000 | encode_varint_cont(i >>> 7)]
   end
 
+  @compile inline: [encode_string: 1]
   defp encode_string(str) when is_binary(str) do
     [encode_varint(byte_size(str)) | str]
   end
 
   defp encode_string(nil), do: 0
+
+  @compile inline: [encode_fixed_string_2: 1]
+  defp encode_fixed_string_2(str) when byte_size(str) == 2, do: str
+  defp encode_fixed_string_2(nil), do: <<0, 0>>
+
+  @compile inline: [encode_fixed_string_3: 1]
+  defp encode_fixed_string_3(str) when byte_size(str) == 3, do: str
+  defp encode_fixed_string_3(nil), do: <<0, 0, 0>>
+
+  @compile inline: [encode_nullable: 1]
+  defp encode_nullable(nil), do: 1
 
   %Date{year: year, month: month} = Date.utc_today()
   new_epoch = DateTime.to_unix(DateTime.new!(Date.new!(year, month, 1), Time.new!(0, 0, 0)))
